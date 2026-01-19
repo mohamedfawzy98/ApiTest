@@ -45,7 +45,7 @@ namespace ApiTest.Controllers
             GetDeptId.MangerName = department.MangerName;
             await _genaricRepository.UpdateAsync(GetDeptId);
             
-            return Ok($"Department {id} is Update");
+            return Ok($"Department {id} is Updateed");
         }
         [HttpDelete("{id}")]
         public async Task<IActionResult>DeleteDept(int id)
