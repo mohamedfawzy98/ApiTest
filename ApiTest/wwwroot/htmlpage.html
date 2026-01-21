@@ -1,0 +1,35 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <title>Load Department</title>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+</head>
+<body>
+
+    <input type="text" id="deptID" />
+    <input type="button" value="Load" onclick="LoadData()" />
+
+    <div id="div1"></div>
+
+    <script>
+        function LoadData() {
+            var deptID = document.getElementById("deptID").value;
+            var divElem = document.getElementById("div1");
+
+            $.ajax({
+                url: "/api/department/" + deptID,
+                type: "GET",
+                success: function (result) {
+                    // $("#div1").html(result);
+                    divElem.innerHTML = result.name;
+                },
+                error: function () {
+                    divElem.innerHTML = "Error loading data";
+                }
+            });
+        }
+    </script>
+
+</body>
+</html>

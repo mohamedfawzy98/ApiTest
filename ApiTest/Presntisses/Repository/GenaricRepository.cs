@@ -13,13 +13,29 @@ namespace ApiTest.Presntisses.Repository
         {
             _dbcontext = dbcontext;
         }
-        public async Task<IReadOnlyList<T>> GetAllAsync()
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
+            if (typeof(T) == typeof(Employee))
+            {
+                return (IEnumerable<T>)await _dbcontext.Set<Employee>().Include(x => x.Department).ToListAsync();
+            }
+            else if (typeof(T) == typeof(Department))
+            {
+                return (IEnumerable<T>)await _dbcontext.Set<Department>().Include(x => x.Employees).ToListAsync();
+            }
             return await _dbcontext.Set<T>().ToListAsync();
         }
 
         public async Task<T> GetByIdAsync(int id)
         {
+            if (typeof(T) == typeof(Employee))
+            {
+                return await _dbcontext.Set<Employee>().Include(x => x.Department).FirstOrDefaultAsync(x => x.Id == id) as T;
+            }
+            else if (typeof(T) == typeof(Department))
+            {
+                return await _dbcontext.Set<Department>().Include(x => x.Employees).FirstOrDefaultAsync(x => x.Id == id) as T;
+            }
             return await _dbcontext.Set<T>().FindAsync(id);
         }
 

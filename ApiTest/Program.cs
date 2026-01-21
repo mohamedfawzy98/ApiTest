@@ -2,6 +2,7 @@
 using ApiTest.Data.Context;
 using ApiTest.InterFaces;
 using ApiTest.Presntisses.Repository;
+using ApiTest.Presntisses.Services;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiTest
@@ -22,9 +23,20 @@ namespace ApiTest
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("CS"));
             });
-            builder.Services.AddScoped(typeof(IGenaricRepository<>), typeof(GenaricRepository<>));
-            var app = builder.Build();
 
+            builder.Services.AddScoped(typeof(IGenaricRepository<>), typeof(GenaricRepository<>));
+            builder.Services.AddScoped<IEmployeeServices, EmpServices>();
+            builder.Services.AddScoped<IDepartmentServices, DeptServices>();
+            // Use CORS  Allow All User Use End Points
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("MyPolicy", policy =>
+                {
+                    policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
+                });
+            });
+            
+            var app = builder.Build();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
             {
@@ -32,6 +44,8 @@ namespace ApiTest
                 app.UseSwaggerUI();
             }
 
+            app.UseStaticFiles();
+            app.UseCors("MyPolicy");
             app.UseHttpsRedirection();
 
             app.UseAuthorization();

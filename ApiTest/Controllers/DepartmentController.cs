@@ -1,5 +1,7 @@
-﻿using ApiTest.Data.Model;
+﻿using ApiTest.Data.Dto;
+using ApiTest.Data.Model;
 using ApiTest.InterFaces;
+using ApiTest.Presntisses;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -10,22 +12,54 @@ namespace ApiTest.Controllers
     public class DepartmentController : ControllerBase
     {
         private readonly IGenaricRepository<Department> _genaricRepository;
+        private readonly IDepartmentServices _departmentServices;
 
-        public DepartmentController(IGenaricRepository<Department> genaricRepository)
+        public DepartmentController(IGenaricRepository<Department> genaricRepository , IDepartmentServices departmentServices)
         {
             _genaricRepository = genaricRepository;
+            _departmentServices = departmentServices;
         }
         [HttpGet]
-        public async Task<IActionResult> GetDepartment()
+        public async Task<ActionResult<IEnumerable<GenralResponse>>> GetDepartment()
         {
-            var GetDepat = await _genaricRepository.GetAllAsync();
-            return Ok(GetDepat);
+            var dept = await _departmentServices.GetAllDept();
+            GenralResponse genralResponse = new GenralResponse();
+            if (dept.Count() > 0)
+            {
+                genralResponse.IsSuccess = true;
+                genralResponse.Data = dept;
+            }
+            else
+            {
+                genralResponse.IsSuccess = false;
+                genralResponse.Data = "No Data Found";
+            }
+            return new List<GenralResponse> { genralResponse };
+
+
+        }
+        [HttpGet("Count")]
+        public async Task<ActionResult<IEnumerable<CountEmployeeInDepartmentDto>>> GetCount()
+        {
+            var CountDto = await _departmentServices.GetCountAsync();
+            return CountDto.ToList();
         }
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetDepartmentId(int id)
+        public async Task<ActionResult<GenralResponse>> GetDepartmentId(int id)
         {
             var GetDepat = await _genaricRepository.GetByIdAsync(id);
-            return Ok(GetDepat);
+            GenralResponse genralResponse = new GenralResponse();
+            if (GetDepat != null)
+                {
+                genralResponse.IsSuccess = true;
+                genralResponse.Data = GetDepat;
+            }
+            else
+            {
+                genralResponse.IsSuccess = false;
+                genralResponse.Data = "No Data Found";
+            }
+            return genralResponse;
         }
         [HttpPost]
         public async Task<IActionResult> AddDept(Department department)

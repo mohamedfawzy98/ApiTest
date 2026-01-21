@@ -11,5 +11,6 @@ namespace ApiTest.Data.Context
         }
 
         public DbSet<Department> Departments { get; set; }  
+        public DbSet<Employee> Employees { get; set; }  
     }
 }
