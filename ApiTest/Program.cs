@@ -1,8 +1,10 @@
 
 using ApiTest.Data.Context;
+using ApiTest.Data.Model;
 using ApiTest.InterFaces;
 using ApiTest.Presntisses.Repository;
 using ApiTest.Presntisses.Services;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApiTest
@@ -23,6 +25,9 @@ namespace ApiTest
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("CS"));
             });
+            // Register Identity Services
+            builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+              .AddEntityFrameworkStores<ApplicationContext>();
 
             builder.Services.AddScoped(typeof(IGenaricRepository<>), typeof(GenaricRepository<>));
             builder.Services.AddScoped<IEmployeeServices, EmpServices>();
@@ -35,7 +40,7 @@ namespace ApiTest
                     policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod();
                 });
             });
-            
+
             var app = builder.Build();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
