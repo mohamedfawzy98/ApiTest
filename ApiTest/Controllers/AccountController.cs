@@ -23,11 +23,11 @@ namespace ApiTest.Controllers
         {
 
             #region Password
-//            {
-//                "userName": "Mohamed",
-//  "email": "11",
-//  "password": "Mohamed123#"
-//}
+            //            {
+            //                "userName": "Mohamed",
+            //  "email": "11",
+            //  "password": "Mohamed123#"
+            //}
             #endregion
             var user = new ApplicationUser
             {
@@ -47,6 +47,24 @@ namespace ApiTest.Controllers
                 }
                 return BadRequest(ModelState);
             }
+        }
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(Registerdto registerdto)
+        {
+            var GetName = await _userManager.FindByNameAsync(registerdto.UserName);
+            if (GetName != null)
+            {
+                bool found = await _userManager.CheckPasswordAsync(GetName, registerdto.Password);
+                if(found)
+                {
+                    // Genrate JWT
+
+                }
+                ModelState.AddModelError(string.Empty, "UserName Or Password Is Error");
+
+            }
+
+            return BadRequest("Error");
         }
     }
 }
