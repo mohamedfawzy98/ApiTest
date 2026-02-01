@@ -4,8 +4,11 @@ using ApiTest.Data.Model;
 using ApiTest.InterFaces;
 using ApiTest.Presntisses.Repository;
 using ApiTest.Presntisses.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace ApiTest
 {
@@ -41,6 +44,27 @@ namespace ApiTest
                 });
             });
 
+            // Allow JWT Token
+
+            builder.Services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;  // Default Jwt Not Cookie
+                option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;  // Show UnAuthorized
+                option.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(option =>
+            {
+                option.SaveToken = true;
+                option.RequireHttpsMetadata = false;
+                option.TokenValidationParameters = new TokenValidationParameters()
+                {
+                    ValidateIssuer = true,
+                    ValidIssuer = "https://localhost:7148/",
+                    ValidateAudience = true,
+                    ValidAudience = "https://localhost:4200/",
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("123456789qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM!@#$%^&*)(?><:+_"))
+                };
+            });
+
             var app = builder.Build();
             // Configure the HTTP request pipeline.
             if (app.Environment.IsDevelopment())
@@ -53,8 +77,8 @@ namespace ApiTest
             app.UseCors("MyPolicy");
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
-
 
             app.MapControllers();
 
