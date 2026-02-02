@@ -73,7 +73,7 @@ namespace ApiTest.Controllers
                     UserCliam.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
                     UserCliam.Add(new Claim(ClaimTypes.Name, GetName.UserName));
                     UserCliam.Add(new Claim(ClaimTypes.NameIdentifier, GetName.Id));
-                  //  UserCliam.Add(new Claim(ClaimTypes.Email, GetName.Email));
+                    UserCliam.Add(new Claim(ClaimTypes.Email, GetName.Email));
                      var Rols = await _userManager.GetRolesAsync(GetName);
                     foreach (var rolitem in Rols)
                     {

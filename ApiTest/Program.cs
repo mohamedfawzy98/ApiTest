@@ -1,4 +1,4 @@
-
+﻿
 using ApiTest.Data.Context;
 using ApiTest.Data.Model;
 using ApiTest.InterFaces;
@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System.Text;
 
 namespace ApiTest
@@ -23,7 +24,46 @@ namespace ApiTest
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
-            builder.Services.AddSwaggerGen();
+            //  builder.Services.AddSwaggerGen();
+
+            // Static Code To Show Authentication Token In Swagger UI
+            builder.Services.AddSwaggerGen(c =>
+            {
+                c.SwaggerDoc("v1", new OpenApiInfo
+                {
+                    Title = "My API",
+                    Version = "v1"
+                });
+
+                // 🔐 JWT Auth
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "bearer",
+                    BearerFormat = "JWT",
+                    In = ParameterLocation.Header,
+                    Description = "اكتب التوكن كده 👇\n\nBearer {your JWT token}"
+                });
+
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement
+                  {
+                      {
+                          new OpenApiSecurityScheme
+                          {
+                              Reference = new OpenApiReference
+                              {
+                                  Type = ReferenceType.SecurityScheme,
+                                  Id = "Bearer"
+                              }
+                          },
+                          Array.Empty<string>()
+                      }
+                  });
+            });
+
+
+
             builder.Services.AddDbContext<ApplicationContext>(option =>
             {
                 option.UseSqlServer(builder.Configuration.GetConnectionString("CS"));
@@ -61,11 +101,11 @@ namespace ApiTest
                     ValidIssuer = builder.Configuration["JWT:IssuerIp"],
                     ValidateAudience = true,
                     ValidAudience = builder.Configuration["JWT:AudienceIp"],
-                  //  ValidateLifetime = true,                
-                   // ValidateIssuerSigningKey = true,
+                    //  ValidateLifetime = true,                
+                    // ValidateIssuerSigningKey = true,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecritKey"])),
 
-                 //   ClockSkew = TimeSpan.Zero
+                    //   ClockSkew = TimeSpan.Zero
                 };
             });
 
