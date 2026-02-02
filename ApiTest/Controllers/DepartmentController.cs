@@ -2,6 +2,7 @@
 using ApiTest.Data.Model;
 using ApiTest.InterFaces;
 using ApiTest.Presntisses;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -39,6 +40,19 @@ namespace ApiTest.Controllers
 
 
         }
+
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        [HttpGet("test-auth")]
+        public IActionResult TestAuth()
+        {
+            return Ok(new
+            {
+                IsAuthenticated = User.Identity.IsAuthenticated,
+                User = User.Identity.Name
+            });
+        }
+
+
         [Authorize]
         [HttpGet("Count")]
         public async Task<ActionResult<IEnumerable<CountEmployeeInDepartmentDto>>> GetCount()

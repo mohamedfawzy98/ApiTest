@@ -58,10 +58,14 @@ namespace ApiTest
                 option.TokenValidationParameters = new TokenValidationParameters()
                 {
                     ValidateIssuer = true,
-                    ValidIssuer = "https://localhost:7148/",
+                    ValidIssuer = builder.Configuration["JWT:IssuerIp"],
                     ValidateAudience = true,
-                    ValidAudience = "https://localhost:4200/",
-                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("123456789qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM!@#$%^&*)(?><:+_"))
+                    ValidAudience = builder.Configuration["JWT:AudienceIp"],
+                  //  ValidateLifetime = true,                
+                   // ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["JWT:SecritKey"])),
+
+                 //   ClockSkew = TimeSpan.Zero
                 };
             });
 

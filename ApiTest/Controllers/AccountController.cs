@@ -3,6 +3,7 @@ using ApiTest.Data.Model;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -16,10 +17,12 @@ namespace ApiTest.Controllers
     public class AccountController : ControllerBase
     {
         private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IConfiguration _confg;
 
-        public AccountController(UserManager<ApplicationUser> userManager)
+        public AccountController(UserManager<ApplicationUser> userManager , IConfiguration configuration)
         {
             _userManager = userManager;
+            _confg = configuration;
         }
 
         [HttpPost("register")]
@@ -67,9 +70,10 @@ namespace ApiTest.Controllers
 
                     List<Claim> UserCliam = new List<Claim>();
 
+                    UserCliam.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
                     UserCliam.Add(new Claim(ClaimTypes.Name, GetName.UserName));
                     UserCliam.Add(new Claim(ClaimTypes.NameIdentifier, GetName.Id));
-                    UserCliam.Add(new Claim(ClaimTypes.Email, GetName.Email));
+                  //  UserCliam.Add(new Claim(ClaimTypes.Email, GetName.Email));
                      var Rols = await _userManager.GetRolesAsync(GetName);
                     foreach (var rolitem in Rols)
                     {
@@ -77,10 +81,9 @@ namespace ApiTest.Controllers
                     }
                     // Generete Guid In ID Claim To Not Static Token 
 
-                    UserCliam.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
 
                     // Create Signture (signingCredentials)
-                    var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes("123456789qwertyuioplkjhgfdsazxcvbnmQWERTYUIOPLKJHGFDSAZXCVBNM!@#$%^&*)(?><:+_"));
+                    var Key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_confg["JWT:SecritKey"]));
                     SigningCredentials signingCred = new SigningCredentials(
                         Key, SecurityAlgorithms.HmacSha256
                         );
@@ -88,9 +91,9 @@ namespace ApiTest.Controllers
                     // Design the token
                     JwtSecurityToken mytoken = new JwtSecurityToken(
                         // Here you can add claims, issuer, audience, expiration, and signing credentials
-                        issuer: "https://localhost:7148/",  // BaeseUrl
-                        audience: "https://localhost:4200/",  // Angluer
-                        expires: DateTime.Now.AddHours(1),
+                        issuer: _confg["JWT:IssuerIp"],  // BaeseUrl
+                        audience: _confg["JWT:AudienceIp"],  // Angluer
+                        expires: DateTime.UtcNow.AddHours(1),
                         claims: UserCliam,
                         signingCredentials: signingCred
 
@@ -99,7 +102,7 @@ namespace ApiTest.Controllers
                     return Ok(new
                     { //JwtSecurityTokenHandler  To Generate Token And Valid
                         token = new JwtSecurityTokenHandler().WriteToken(mytoken),
-                        expiration = mytoken.ValidTo
+                        expiration = DateTime.UtcNow.AddHours(1), //mytoken.ValidTo
                     });
 
                 }
