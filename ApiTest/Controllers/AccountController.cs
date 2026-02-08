@@ -70,6 +70,7 @@ namespace ApiTest.Controllers
 
                     List<Claim> UserCliam = new List<Claim>();
 
+                    // Generete Guid In ID Claim To Not Static Token 
                     UserCliam.Add(new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()));
                     UserCliam.Add(new Claim(ClaimTypes.Name, GetName.UserName));
                     UserCliam.Add(new Claim(ClaimTypes.NameIdentifier, GetName.Id));
@@ -79,7 +80,6 @@ namespace ApiTest.Controllers
                     {
                         UserCliam.Add(new Claim(ClaimTypes.Role, rolitem));
                     }
-                    // Generete Guid In ID Claim To Not Static Token 
 
 
                     // Create Signture (signingCredentials)
